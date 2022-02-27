@@ -4,20 +4,31 @@ app = fastarg.Fastarg()
 
 app2 = fastarg.Fastarg()
 
+app3 = fastarg.Fastarg()
+
 @app2.command()
 def foo():
     print("foo")
 
-app.add_fastarg(app2, name="foo")
+@app3.command()
+def bar():
+    print("bar")
+
+app.add_fastarg(app2, name="apptwo")
+app2.add_fastarg(app3, name="appthree")
 
 @app.command()
-def hello(name: str):
+def baz(name: str):
     """hello world"""
     print("hello " + name)
 
 @app.command()
-def goodbye(num: int):
+def qux(num: int):
     print(num)
+
+# @app.command()
+# def apptwo():
+#     print("app two")
 
 if __name__ == "__main__":
     app.run()
