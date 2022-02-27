@@ -83,6 +83,10 @@ class Fastarg:
         arg = None
         if len(argqueue) > 0:
             arg = argqueue.pop(0)
+
+        if not arg:
+            return
+
         # print(arg)
         # print(fastarg.subparsers.choices)
         # search fastargs for name of current sys argv
