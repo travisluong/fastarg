@@ -7,7 +7,7 @@ app2 = fastarg.Fastarg()
 app3 = fastarg.Fastarg()
 
 @app2.command()
-def foo():
+def foo(foo: str):
     print("foo")
 
 @app3.command()
@@ -27,8 +27,9 @@ def baz(name: str):
     print("hello " + name)
 
 @app.command()
-def qux(num: int):
+def qux(num: int = fastarg.Option(None, help="the default qux num"), name: str = fastarg.Argument("quxx", help="quxx")):
     print(num)
+    print(name)
 
 # @app.command()
 # def apptwo():

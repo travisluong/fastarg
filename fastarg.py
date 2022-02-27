@@ -5,6 +5,16 @@ from inspect import signature
 import functools
 import argparse
 
+class Option:
+    def __init__(self, default_value, help):
+        self.default_value = default_value
+        self.help = help
+
+class Argument:
+    def __init__(self, default_value, help):
+        self.default_value = default_value
+        self.help = help
+
 class Command:
     def __init__(self, function):
         self.function = function
@@ -122,17 +132,32 @@ class Fastarg:
 
             for name, param in sig.parameters.items():
                 annotation = param.annotation
+
                 if annotation is bool:
                     action = argparse.BooleanOptionalAction
                 else:
                     action = None
-                
-                if param.default is inspect._empty:
+
+                if annotation.__name__ == "_empty":
+                    raise Exception(f"Type must be defined for parameter {name} of function {command.function.__name__}")
+
+                if param.default is inspect._empty: # required argument
                     arg_name = name
                     parser_a.add_argument(arg_name, type=annotation, help=f"type: {annotation.__name__}", default=param.default, action=action)
+                elif type(param.default) is Argument:
+                    arg_name = name
+                    help_text = param.default.help
+                    parser_a.add_argument(arg_name, type=annotation, help=f"type: {annotation.__name__}. {help_text}", action=action)
+                elif type(param.default) is Option:
+                    arg_name = '--' + name
+                    default = param.default.default_value
+                    help_text = param.default.help
+                    parser_a.add_argument(arg_name, type=annotation, help=f"type: {annotation.__name__}. {help_text}", default=default, action=action)
                 else:
                     arg_name = '--' + name
-                    parser_a.add_argument(arg_name, type=annotation, help=f"type: {annotation.__name__}", default=param.default, action=action)
+                    default = param.default
+                    help_text = ""
+                    parser_a.add_argument(arg_name, type=annotation, help=f"type: {annotation.__name__}. {help_text}", default=default, action=action)
 
 
 
