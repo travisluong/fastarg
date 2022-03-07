@@ -1,8 +1,4 @@
-import sys
-
-sys.path.append("..")
-
-from fastarg.src import fastarg
+from src import fastarg
 
 app = fastarg.Fastarg()
 
