@@ -1,13 +1,14 @@
 from src import fastarg
 
-app = fastarg.Fastarg()
+app = fastarg.Fastarg(description="My App", help="app1 help")
 
-app2 = fastarg.Fastarg()
+app2 = fastarg.Fastarg(description="My App 2", help="app2 help")
 
-app3 = fastarg.Fastarg()
+app3 = fastarg.Fastarg(description="My App 3", help="app3 help")
 
 @app2.command()
 def foo(foo: str):
+    """app2 foo"""
     print("foo")
 
 @app3.command()

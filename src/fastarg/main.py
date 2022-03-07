@@ -23,11 +23,11 @@ class Command:
         return self.function.__name__
 
 class Fastarg:
-    def __init__(self):
+    def __init__(self, description: str = "", help: str = ""):
         self.commands = []
-
-        # fastarg branches
         self.fastargs = []
+        self.description = description
+        self.help = help
 
     def command(self):
         def decorator(func):
@@ -42,7 +42,6 @@ class Fastarg:
             sig = signature(func)
             parser_a = self.subparsers.add_parser(func.__name__, help=func.__doc__)
             for name, param in sig.parameters.items():
-                # print(param.kind, ':', name, '=', param.default)
                 annotation = param.annotation
                 if annotation is bool:
                     action = argparse.BooleanOptionalAction
@@ -66,22 +65,16 @@ class Fastarg:
         return decorator
 
     def run(self):
-        # self.parser.parse_args()
-        # print(self.commands)
-
         # recursively parse all child fastargs
 
         # if root fastarg, then generate the root parser object
-        self.parser = argparse.ArgumentParser(prog="root parser", description="root cli")
+        self.parser = argparse.ArgumentParser(prog="root parser", description=self.description)
 
         # after root is generated, traverse tree of fastargs
         self.traverse_fastargs(self)
 
         # finally, parse the arguments
         args = self.parser.parse_args()
-        print(args)
-
-        print(sys.argv)
 
         argqueue = sys.argv[1:]
 
@@ -89,7 +82,6 @@ class Fastarg:
         self.search_to_invoke(self, argqueue, args)
 
     def search_to_invoke(self, fastarg, argqueue, commandargs):
-        print(f"argqueue: {argqueue}")
         arg = None
         if len(argqueue) > 0:
             arg = argqueue.pop(0)
@@ -97,12 +89,8 @@ class Fastarg:
         if not arg:
             return
 
-        # print(arg)
-        # print(fastarg.subparsers.choices)
         # search fastargs for name of current sys argv
         for cfastarg in fastarg.fastargs:
-            print("cfastarg " + cfastarg.name)
-            print("arg " + arg)
             if cfastarg.name == arg:
                 # if match, recurse on the fastarg with same name
                 self.search_to_invoke(cfastarg, argqueue, commandargs)
@@ -111,11 +99,9 @@ class Fastarg:
 
         # if no match, search commands for current sys argv
         for command in fastarg.commands:
-            print("command " + command.get_name())
             if command.get_name() == arg:
                 # if found, invoke the function
                 ka = dict(commandargs._get_kwargs())
-                print(ka)
                 command.function(**ka)
 
 
@@ -126,7 +112,6 @@ class Fastarg:
 
         # process commands
         for command in fastarg.commands:
-            # print(command.function.__name__)
             sig = signature(command.function)
             parser_a = fastarg.subparsers.add_parser(command.function.__name__, help=command.function.__doc__)
 
@@ -162,11 +147,9 @@ class Fastarg:
 
 
         for child in fastarg.fastargs:
-            child.parser = fastarg.subparsers.add_parser(child.name, help="a subparser")
+            child.parser = fastarg.subparsers.add_parser(child.name, help=child.help)
             self.traverse_fastargs(child)
 
     def add_fastarg(self, fastarg: Fastarg, name=None):
-        # self.subparsers.add_parser(name)
         fastarg.name = name
         self.fastargs.append(fastarg)
-        # print(fastarg)
