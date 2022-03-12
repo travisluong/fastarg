@@ -1,9 +1,9 @@
 from src import fastarg
 
-app = fastarg.Fastarg(description="Productivity App", prog="todo")
-app2 = fastarg.Fastarg(description="To Do", help="Manage todos")
-app3 = fastarg.Fastarg(description="User", help="Manage users")
-app4 = fastarg.Fastarg(description="Address", help="Manage addresses")
+app = fastarg.Fastarg(description="productivity app", prog="todo")
+app2 = fastarg.Fastarg(description="to do", help="manage todos")
+app3 = fastarg.Fastarg(description="user", help="manage users")
+app4 = fastarg.Fastarg(description="address", help="manage addresses")
 
 @app.command()
 def hello_world(name: str):
@@ -17,7 +17,7 @@ def create_todo(title: str, completed: bool = False):
 
 @app2.command()
 def update_todo(
-    id: int = fastarg.Argument(-1, help="the primary key of todo"), 
+    id: int = fastarg.Argument(help="the primary key of todo"), 
     completed: bool = fastarg.Option(False, help="completed status")
     ):
     """update a todo"""

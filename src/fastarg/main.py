@@ -11,8 +11,7 @@ class Option:
         self.help = help
 
 class Argument:
-    def __init__(self, default_value, help):
-        self.default_value = default_value
+    def __init__(self, help):
         self.help = help
 
 class Command:
