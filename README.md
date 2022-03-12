@@ -13,7 +13,7 @@ pip3 install fastarg
 main.py
 
 ```
-from src import fastarg
+import fastarg
 
 app = fastarg.Fastarg(description="hello world")
 
