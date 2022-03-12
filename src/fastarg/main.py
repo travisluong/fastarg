@@ -36,35 +36,6 @@ class Fastarg:
 
         return decorator
 
-    def commandb(self):
-        def decorator(func):
-            self.commands.append(func.__name__)
-
-            sig = signature(func)
-            parser_a = self.subparsers.add_parser(func.__name__, help=func.__doc__)
-            for name, param in sig.parameters.items():
-                annotation = param.annotation
-                if annotation is bool:
-                    action = argparse.BooleanOptionalAction
-                else:
-                    action = None
-                
-                if param.default is inspect._empty:
-                    arg_name = name
-                    parser_a.add_argument(arg_name, type=annotation, help=f"type: {annotation.__name__}", default=param.default, action=action)
-                else:
-                    arg_name = '--' + name
-                    parser_a.add_argument(arg_name, type=annotation, help=f"type: {annotation.__name__}", default=param.default, action=action)
-
-            @functools.wraps(func)
-            def wrapped(*args, **kwargs):
-                args = self.parser.parse_args()
-                ka = dict(args._get_kwargs())
-                func(**ka)
-            return wrapped
-
-        return decorator
-
     def run(self):
         # recursively parse all child fastargs
 
