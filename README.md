@@ -130,6 +130,75 @@ Positional arguments are required. For example, the create_todo command takes a 
 
 Options are optional. For example, the create_address command takes an optional argument of city, state, and zip.
 
+## Subcommands in multiple files
+
+main.py
+
+```
+import fastarg
+import commands.todo as todo
+import commands.user as user
+
+app = fastarg.Fastarg(description="productivity app", prog="todo")
+
+@app.command()
+def hello_world(name: str):
+    """hello world"""
+    print("hello " + name)
+
+app.add_fastarg(todo.app, name="todo")
+app.add_fastarg(user.app, name="user")
+
+if __name__ == "__main__":
+    app.run()
+```
+
+commands/todo.py
+
+```
+import fastarg
+
+app = fastarg.Fastarg(description="to do", help="manage todos")
+
+@app.command()
+def create_todo(title: str, completed: bool = False):
+    """create a todo"""
+    print(f"create todo: {title} - {completed}")
+
+@app.command()
+def update_todo(
+    id: int = fastarg.Argument(help="the primary key of todo"), 
+    completed: bool = fastarg.Option(False, help="completed status")
+    ):
+    """update a todo"""
+    print(f"update todo: {id} - {completed}")
+```
+
+commands/user.py
+
+```
+import fastarg
+import commands.address as address
+
+app = fastarg.Fastarg(description="user", help="manage users")
+
+@app.command()
+def create_user(email: str, password: str, gold: float):
+    """create a user"""
+    print(f"creating {email}/{password} with {gold} gold")
+
+@app.command()
+def delete_user(email: str):
+    """delete a user"""
+    print(f"deleting user {email}")
+
+app.add_fastarg(address.app, name="address")
+```
+
+## Examples
+
+https://github.com/travisluong/fastarg/tree/main/examples
+
 ## Author
 
 Travis Luong
