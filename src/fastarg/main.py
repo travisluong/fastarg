@@ -23,11 +23,12 @@ class Command:
         return self.function.__name__
 
 class Fastarg:
-    def __init__(self, description: str = "", help: str = ""):
+    def __init__(self, description: str = "", help: str = "", prog=""):
         self.commands = []
         self.fastargs = []
         self.description = description
         self.help = help
+        self.prog = prog
 
     def command(self):
         def decorator(func):
@@ -68,7 +69,7 @@ class Fastarg:
         # recursively parse all child fastargs
 
         # if root fastarg, then generate the root parser object
-        self.parser = argparse.ArgumentParser(prog="root parser", description=self.description)
+        self.parser = argparse.ArgumentParser(prog=self.prog, description=self.description)
 
         # after root is generated, traverse tree of fastargs
         self.traverse_fastargs(self)
@@ -108,7 +109,7 @@ class Fastarg:
 
 
     def traverse_fastargs(self, fastarg: Fastarg):
-        fastarg.subparsers = fastarg.parser.add_subparsers(help="subcommand help")
+        fastarg.subparsers = fastarg.parser.add_subparsers()
 
         # process commands
         for command in fastarg.commands:
@@ -126,23 +127,30 @@ class Fastarg:
                 if annotation.__name__ == "_empty":
                     raise Exception(f"Type must be defined for parameter {name} of function {command.function.__name__}")
 
+                if annotation is bool and type(param.default) is Argument:
+                    raise Exception(f"Error: Do not use Argument for booleans. Use Option instead.")
+                
+                if annotation is bool and param.default is inspect._empty:
+                    arg_name = '--' + name
+                    default = False
+                    parser_a.add_argument(arg_name, type=annotation, help=f"[{annotation.__name__}]", default=default, action=action)
                 if param.default is inspect._empty: # required argument
                     arg_name = name
-                    parser_a.add_argument(arg_name, type=annotation, help=f"type: {annotation.__name__}", default=param.default, action=action)
+                    parser_a.add_argument(arg_name, type=annotation, help=f"[{annotation.__name__}]", default=param.default, action=action)
                 elif type(param.default) is Argument:
                     arg_name = name
                     help_text = param.default.help
-                    parser_a.add_argument(arg_name, type=annotation, help=f"type: {annotation.__name__}. {help_text}", action=action)
+                    parser_a.add_argument(arg_name, type=annotation, help=f"[{annotation.__name__}] {help_text}", action=action)
                 elif type(param.default) is Option:
                     arg_name = '--' + name
                     default = param.default.default_value
                     help_text = param.default.help
-                    parser_a.add_argument(arg_name, type=annotation, help=f"type: {annotation.__name__}. {help_text}", default=default, action=action)
+                    parser_a.add_argument(arg_name, type=annotation, help=f"[{annotation.__name__}] {help_text}", default=default, action=action)
                 else:
                     arg_name = '--' + name
                     default = param.default
                     help_text = ""
-                    parser_a.add_argument(arg_name, type=annotation, help=f"type: {annotation.__name__}. {help_text}", default=default, action=action)
+                    parser_a.add_argument(arg_name, type=annotation, help=f"[{annotation.__name__}] {help_text}", default=default, action=action)
 
 
 
