@@ -1,7 +1,9 @@
 import sys
 import inspect
+import argparse
 from inspect import signature
 
+# decorator test
 def deco(func):
     def inner():
         print("running inner()")
@@ -12,7 +14,7 @@ def deco(func):
 def target():
     print('running target()')
 
-
+# time decorator example
 import time
 def clock(func):
     def clocked(*args): #
@@ -31,7 +33,7 @@ def snooze(seconds):
     time.sleep(seconds)
 
 
-
+# functools example
 import time
 import functools
 def clock(func): 
@@ -56,13 +58,13 @@ def clock(func):
 def snooze(seconds: int, foo: str = "hello"):
     time.sleep(seconds)
 
-import argparse
-
+# argparse example
 parser = argparse.ArgumentParser(prog='PROG', description="cli tool")
 # parser.add_argument('--foo', action='store_true', help='foo help')
 subparsers = parser.add_subparsers(help="alkjsdhfaklshdf")
 commands = []
 
+# cli decorator prototype
 def cli(func):
     global commands
     commands.append(func.__name__)
@@ -109,6 +111,36 @@ def bar(num: float):
     print('bar')
     print(num + 1.5)
 
+# command decorator prototype
+def command(self):
+    def decorator(func):
+        self.commands.append(func.__name__)
+
+        sig = signature(func)
+        parser_a = self.subparsers.add_parser(func.__name__, help=func.__doc__)
+        for name, param in sig.parameters.items():
+            annotation = param.annotation
+            if annotation is bool:
+                action = argparse.BooleanOptionalAction
+            else:
+                action = None
+            
+            if param.default is inspect._empty:
+                arg_name = name
+                parser_a.add_argument(arg_name, type=annotation, help=f"type: {annotation.__name__}", default=param.default, action=action)
+            else:
+                arg_name = '--' + name
+                parser_a.add_argument(arg_name, type=annotation, help=f"type: {annotation.__name__}", default=param.default, action=action)
+
+        @functools.wraps(func)
+        def wrapped(*args, **kwargs):
+            args = self.parser.parse_args()
+            ka = dict(args._get_kwargs())
+            func(**ka)
+        return wrapped
+
+    return decorator
+
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] != '-h':
         a = sys.argv[1]
@@ -118,22 +150,22 @@ if __name__ == "__main__":
         locals()[command]()
     else:
         args = parser.parse_args()
-    # print('non')
-    # foo()
-    # hello()
-    # goodbye()
-    # target()
-    # snooze(5)
-    # sig = signature(snooze)
-    # print(sig.parameters.get("seconds").annotation)
-    # annotation = sig.parameters.get("seconds").annotation
+    print('non')
+    foo()
+    hello()
+    goodbye()
+    target()
+    snooze(5)
+    sig = signature(snooze)
+    print(sig.parameters.get("seconds").annotation)
+    annotation = sig.parameters.get("seconds").annotation
     
-    # parser = argparse.ArgumentParser(description='Process some integers.')
+    parser = argparse.ArgumentParser(description='Process some integers.')
 
-    # for name, param in sig.parameters.items():
-    #     print(param.kind, ':', name, '=', param.default)
-    #     annotation = param.annotation
-    #     parser.add_argument(name, type=annotation, help="foo")
+    for name, param in sig.parameters.items():
+        print(param.kind, ':', name, '=', param.default)
+        annotation = param.annotation
+        parser.add_argument(name, type=annotation, help="foo")
 
-    # args = parser.parse_args()
-    # print(args)
+    args = parser.parse_args()
+    print(args)
