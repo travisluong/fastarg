@@ -124,8 +124,12 @@ Run the nested create_address command:
 
 ## Arguments
 
-Positional arguments are required. From the example above, the create_todo command takes a positional argument of title. That is a required parameter and cannot be 
+Positional arguments are required. For example, the create_todo command takes a positional argument of title.
 
 ## Options
 
-Options are optional.
+Options are optional. For example, the create_address command takes an optional argument of city, state, and zip.
+
+## Author
+
+Travis Luong

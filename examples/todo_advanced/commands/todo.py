@@ -9,7 +9,7 @@ def create_todo(title: str, completed: bool = False):
 
 @app.command()
 def update_todo(
-    id: int = fastarg.Argument(-1, help="the primary key of todo"), 
+    id: int = fastarg.Argument(help="the primary key of todo"), 
     completed: bool = fastarg.Option(False, help="completed status")
     ):
     """update a todo"""
