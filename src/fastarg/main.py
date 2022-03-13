@@ -75,9 +75,6 @@ class Fastarg:
                 ka = dict(commandargs._get_kwargs())
                 command.function(**ka)
 
-
-
-
     def traverse_fastargs(self, fastarg: Fastarg):
         fastarg.subparsers = fastarg.parser.add_subparsers()
 
@@ -121,8 +118,6 @@ class Fastarg:
                     default = param.default
                     help_text = ""
                     parser_a.add_argument(arg_name, type=annotation, help=f"[{annotation.__name__}] {help_text}", default=default, action=action)
-
-
 
         for child in fastarg.fastargs:
             child.parser = fastarg.subparsers.add_parser(child.name, help=child.help)

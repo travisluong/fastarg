@@ -4,12 +4,10 @@ import argparse
 import functools
 from inspect import signature
 
-# argparse example
 parser = argparse.ArgumentParser(prog="prog", description="cli tool")
 subparsers = parser.add_subparsers(help="subparser help")
 commands = []
 
-# cli decorator prototype
 def cli(func):
     global commands
     commands.append(func.__name__)
@@ -31,7 +29,6 @@ def cli(func):
             arg_name = '--' + name
             parser_a.add_argument(arg_name, type=annotation, help=f"type: {annotation.__name__}", default=param.default, action=action)
 
-    # @functools.wraps(func)
     def wrapped(*args, **kwargs):
         args = parser.parse_args()
         ka = dict(args._get_kwargs())
@@ -39,22 +36,15 @@ def cli(func):
     return wrapped
 
 @cli
-def hello(name: str = 'foo', age: int = 1):
-    """hello world"""
-    print("hello " + name + " " + str(age))
+def hello(name: str):
+    print("hello " + name)
 
 @cli
-def goodbye(name: str, age: int = 2):
-    print("goodbye " + name + " " + str(age))
-
-@cli
-def foo(published: bool = False):
-    print('foo')
-
-@cli
-def bar(num: float):
-    print('bar')
-    print(num + 1.5)
+def goodbye(name: str, formal: bool = False):
+    if formal:
+        print(f"Goodbye Ms. {name}. Have a good day.")
+    else:
+        print(f"Bye {name}!")
 
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] != '-h':
