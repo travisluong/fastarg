@@ -31,7 +31,7 @@ def cli(func):
             arg_name = '--' + name
             parser_a.add_argument(arg_name, type=annotation, help=f"type: {annotation.__name__}", default=param.default, action=action)
 
-    @functools.wraps(func)
+    # @functools.wraps(func)
     def wrapped(*args, **kwargs):
         args = parser.parse_args()
         ka = dict(args._get_kwargs())

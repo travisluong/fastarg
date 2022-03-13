@@ -1,6 +1,6 @@
 import fastarg
 
-app = fastarg.Fastarg(description="Address", help="Manage addresses")
+app = fastarg.Fastarg(description="address", help="manage addresses")
 
 @app.command()
 def create_address(
